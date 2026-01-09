@@ -6,3 +6,4 @@ numpy
 pyyaml
 fvcore
 iopath
+huggingface_hub

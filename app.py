@@ -14,12 +14,18 @@ from detectron2.modeling.backbone.fpn import LastLevelMaxPool
 from detectron2.modeling.roi_heads import BaseMaskRCNNHead
 from detectron2.modeling.roi_heads.mask_head import mask_rcnn_loss, mask_rcnn_inference
 from detectron2.structures import Instances
+from detectron2.config import get_cfg
+from detectron2.modeling import build_model
+from detectron2.checkpoint import DetectionCheckpointer
 from detectron2 import model_zoo
 import torch.nn as nn
 import torch.nn.functional as F
 import base64
 from io import BytesIO
 from PIL import Image
+from huggingface_hub import hf_hub_download
+
+
 
 # =========================================================
 # CUSTOM CSS - MINIMAL & CLEAN
@@ -454,6 +460,7 @@ def calculate_sca_grade(instances, metadata):
 # =========================================================
 # LOAD MODEL
 # =========================================================
+torch.set_grad_enabled(False)
 @st.cache_resource
 def load_predictor():
     cfg = get_cfg()
@@ -486,6 +493,8 @@ def load_predictor():
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.45
     cfg.MODEL.ROI_HEADS.NMS_THRESH_TEST = 0.47
     cfg.MODEL.DEVICE = "cpu"
+
+    
     
     thing_classes = [
         'broken', 'cherry pod', 'floater', 'foreign material', 'full black', 'full sour', 
@@ -494,6 +503,10 @@ def load_predictor():
     ]
     MetadataCatalog.get("coffee_final").set(thing_classes=thing_classes)
     return DefaultPredictor(cfg), MetadataCatalog.get("coffee_final")
+
+predictor = load_predictor()
+st.success("Model siap digunakan")
+
 
 # =========================================================
 # DETECTION PAGE - MINIMAL & CLEAN
